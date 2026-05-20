@@ -45,8 +45,10 @@ export function SimChart({
     logKeys.size || xLog
       ? data.map((d) => {
           const c: SimSeriesPoint = { ...d }
+          // Floor log-axis values at 1 (e.g. viral load < 1 copy/mL ≈ undetectable)
+          // so the axis spans clean decades instead of extending to ~1e-20.
           logKeys.forEach((k) => {
-            if (typeof c[k] === 'number' && c[k] <= 0) c[k] = 0.1
+            if (typeof c[k] === 'number' && c[k] < 1) c[k] = 1
           })
           if (xLog && typeof c[xKey] === 'number' && c[xKey] <= 0) c[xKey] = 0.0001
           return c

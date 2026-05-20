@@ -1,4 +1,4 @@
-import { createContext, useContext, useMemo, type ReactNode } from 'react'
+import { createContext, useContext, useEffect, useMemo, type ReactNode } from 'react'
 import { en, type StringKey } from './en'
 import { ru } from './ru'
 import type { Bilingual, Lang } from '../lib/types'
@@ -18,6 +18,10 @@ const Ctx = createContext<I18nValue | null>(null)
 export function I18nProvider({ children }: { children: ReactNode }) {
   const { data, update } = useApp()
   const lang = data.lang
+
+  useEffect(() => {
+    document.documentElement.lang = lang
+  }, [lang])
 
   const value = useMemo<I18nValue>(
     () => ({

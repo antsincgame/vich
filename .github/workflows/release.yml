@@ -1,0 +1,39 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - name: Package static build
+        run: cd dist && zip -qr "../hivlab-${GITHUB_REF_NAME}-static.zip" . && cd ..
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: hivlab-*-static.zip
+          body: |
+            **HIV Cure Research Lab** — in-browser HIV research companion.
+
+            In-silico R simulations (WebR), a local LM Studio AI copilot, P2P sharing,
+            and health monitoring. Bilingual RU/EN, local-only storage.
+
+            The attached `*-static.zip` is the self-contained built site (includes the
+            WebR runtime); unzip and serve it from any static host.
+
+            Educational/research tool — not medical advice, and it does not itself find
+            a cure; simulation outputs are hypotheses requiring lab and clinical validation.

@@ -18,8 +18,8 @@ import type { Appointment, LabEntry, Medication } from '../lib/types'
 type Tab = 'labs' | 'meds' | 'appts'
 
 export default function Monitoring() {
-  const { data, update } = useApp()
-  const { t, bi } = useI18n()
+  const { data } = useApp()
+  const { t } = useI18n()
   const [tab, setTab] = useState<Tab>('labs')
 
   const labsAsc = [...data.labs].sort((a, b) => a.dateISO.localeCompare(b.dateISO))
@@ -78,145 +78,152 @@ export default function Monitoring() {
       )}
     </div>
   )
+}
 
-  function LabsTab() {
-    const [form, setForm] = useState<{ dateISO: string; vl: string; cd4: string; cd4cd8: string; weight: string }>(
-      { dateISO: todayISO(), vl: '', cd4: '', cd4cd8: '', weight: '' },
-    )
-    function add() {
-      const entry: LabEntry = {
-        id: uid(),
-        dateISO: form.dateISO,
-        viralLoad: form.vl ? Number(form.vl) : undefined,
-        cd4: form.cd4 ? Number(form.cd4) : undefined,
-        cd4cd8: form.cd4cd8 ? Number(form.cd4cd8) : undefined,
-        weightKg: form.weight ? Number(form.weight) : undefined,
-      }
-      update({ labs: [...data.labs, entry] })
-      setForm({ dateISO: todayISO(), vl: '', cd4: '', cd4cd8: '', weight: '' })
+function LabsTab() {
+  const { data, update } = useApp()
+  const { t, bi } = useI18n()
+  const [form, setForm] = useState({ dateISO: todayISO(), vl: '', cd4: '', cd4cd8: '', weight: '' })
+
+  function add() {
+    const entry: LabEntry = {
+      id: uid(),
+      dateISO: form.dateISO,
+      viralLoad: form.vl ? Number(form.vl) : undefined,
+      cd4: form.cd4 ? Number(form.cd4) : undefined,
+      cd4cd8: form.cd4cd8 ? Number(form.cd4cd8) : undefined,
+      weightKg: form.weight ? Number(form.weight) : undefined,
     }
-    const list = [...data.labs].sort((a, b) => b.dateISO.localeCompare(a.dateISO))
-    return (
-      <Section title={t('mon.addLab')}>
-        <Card className="mb-4 grid grid-cols-2 gap-3 p-4 sm:grid-cols-5">
-          <Field label={t('common.date')}>
-            <input type="date" className={inputClass} value={form.dateISO} onChange={(e) => setForm({ ...form, dateISO: e.target.value })} />
-          </Field>
-          <Field label={t('mon.vl')}>
-            <input type="number" className={inputClass} value={form.vl} onChange={(e) => setForm({ ...form, vl: e.target.value })} />
-          </Field>
-          <Field label={t('mon.cd4')}>
-            <input type="number" className={inputClass} value={form.cd4} onChange={(e) => setForm({ ...form, cd4: e.target.value })} />
-          </Field>
-          <Field label={t('mon.cd4cd8')}>
-            <input type="number" step={0.1} className={inputClass} value={form.cd4cd8} onChange={(e) => setForm({ ...form, cd4cd8: e.target.value })} />
-          </Field>
-          <Field label={t('mon.weight')}>
-            <input type="number" step={0.1} className={inputClass} value={form.weight} onChange={(e) => setForm({ ...form, weight: e.target.value })} />
-          </Field>
-          <div className="col-span-2 flex items-end sm:col-span-5">
-            <Button variant="primary" onClick={add}>
-              {t('common.add')}
-            </Button>
-          </div>
-        </Card>
+    update({ labs: [...data.labs, entry] })
+    setForm({ dateISO: todayISO(), vl: '', cd4: '', cd4cd8: '', weight: '' })
+  }
+  const list = [...data.labs].sort((a, b) => b.dateISO.localeCompare(a.dateISO))
 
-        {list.length === 0 ? (
-          <p className="text-sm text-slate-400">{t('common.none')}</p>
-        ) : (
-          <div className="space-y-2">
-            {list.map((l) => {
-              const vs = viralLoadStatus(l.viralLoad)
-              const cs = cd4Status(l.cd4)
-              return (
-                <Card key={l.id} className="flex flex-wrap items-center gap-x-4 gap-y-1 p-3 text-sm">
-                  <span className="font-medium tabular-nums">{l.dateISO}</span>
-                  {l.viralLoad != null && (
-                    <span className="flex items-center gap-1">
-                      VL {fmt(l.viralLoad)} <Badge tone={VL_TONE[vs]}>{bi(VL_LABEL[vs])}</Badge>
-                    </span>
-                  )}
-                  {l.cd4 != null && (
-                    <span className="flex items-center gap-1">
-                      CD4 {fmt(l.cd4)} <Badge tone={CD4_TONE[cs]}>{bi(CD4_LABEL[cs])}</Badge>
-                    </span>
-                  )}
-                  {l.cd4cd8 != null && <span>CD4/CD8 {fmt(l.cd4cd8)}</span>}
-                  {l.weightKg != null && <span>{fmt(l.weightKg)} kg</span>}
-                  <button
-                    className="ml-auto text-xs text-rose-500 hover:underline"
-                    onClick={() => update({ labs: data.labs.filter((x) => x.id !== l.id) })}
-                  >
-                    {t('common.delete')}
-                  </button>
-                </Card>
-              )
-            })}
-          </div>
-        )}
-      </Section>
-    )
+  return (
+    <Section title={t('mon.addLab')}>
+      <Card className="mb-4 grid grid-cols-2 gap-3 p-4 sm:grid-cols-5">
+        <Field label={t('common.date')}>
+          <input type="date" className={inputClass} value={form.dateISO} onChange={(e) => setForm({ ...form, dateISO: e.target.value })} />
+        </Field>
+        <Field label={t('mon.vl')}>
+          <input type="number" className={inputClass} value={form.vl} onChange={(e) => setForm({ ...form, vl: e.target.value })} />
+        </Field>
+        <Field label={t('mon.cd4')}>
+          <input type="number" className={inputClass} value={form.cd4} onChange={(e) => setForm({ ...form, cd4: e.target.value })} />
+        </Field>
+        <Field label={t('mon.cd4cd8')}>
+          <input type="number" step={0.1} className={inputClass} value={form.cd4cd8} onChange={(e) => setForm({ ...form, cd4cd8: e.target.value })} />
+        </Field>
+        <Field label={t('mon.weight')}>
+          <input type="number" step={0.1} className={inputClass} value={form.weight} onChange={(e) => setForm({ ...form, weight: e.target.value })} />
+        </Field>
+        <div className="col-span-2 flex items-end sm:col-span-5">
+          <Button variant="primary" onClick={add}>
+            {t('common.add')}
+          </Button>
+        </div>
+      </Card>
+
+      {list.length === 0 ? (
+        <p className="text-sm text-slate-400">{t('common.none')}</p>
+      ) : (
+        <div className="space-y-2">
+          {list.map((l) => {
+            const vs = viralLoadStatus(l.viralLoad)
+            const cs = cd4Status(l.cd4)
+            return (
+              <Card key={l.id} className="flex flex-wrap items-center gap-x-4 gap-y-1 p-3 text-sm">
+                <span className="font-medium tabular-nums">{l.dateISO}</span>
+                {l.viralLoad != null && (
+                  <span className="flex items-center gap-1">
+                    VL {fmt(l.viralLoad)} <Badge tone={VL_TONE[vs]}>{bi(VL_LABEL[vs])}</Badge>
+                  </span>
+                )}
+                {l.cd4 != null && (
+                  <span className="flex items-center gap-1">
+                    CD4 {fmt(l.cd4)} <Badge tone={CD4_TONE[cs]}>{bi(CD4_LABEL[cs])}</Badge>
+                  </span>
+                )}
+                {l.cd4cd8 != null && <span>CD4/CD8 {fmt(l.cd4cd8)}</span>}
+                {l.weightKg != null && <span>{fmt(l.weightKg)} kg</span>}
+                <button
+                  className="ml-auto text-xs text-rose-500 hover:underline"
+                  onClick={() => update({ labs: data.labs.filter((x) => x.id !== l.id) })}
+                >
+                  {t('common.delete')}
+                </button>
+              </Card>
+            )
+          })}
+        </div>
+      )}
+    </Section>
+  )
+}
+
+function MedsTab() {
+  const { data, update } = useApp()
+  const { t } = useI18n()
+  const [form, setForm] = useState({ name: '', dose: '', timesPerDay: '1' })
+  const today = todayISO()
+  const since = new Date(Date.now() - 30 * 86400000).toISOString().slice(0, 10)
+
+  function add() {
+    if (!form.name.trim()) return
+    const med: Medication = {
+      id: uid(),
+      name: form.name.trim(),
+      dose: form.dose.trim() || undefined,
+      timesPerDay: Math.max(1, Number(form.timesPerDay) || 1),
+      startedISO: today,
+      active: true,
+    }
+    update({ meds: [...data.meds, med] })
+    setForm({ name: '', dose: '', timesPerDay: '1' })
+  }
+  function logDose(medId: string, status: 'taken' | 'missed') {
+    update({ doses: [...data.doses, { id: uid(), medId, dateISO: today, status }] })
+  }
+  function adherence(med: Medication): number {
+    const expected = med.timesPerDay * 30
+    const taken = data.doses.filter(
+      (d) => d.medId === med.id && d.status === 'taken' && d.dateISO >= since,
+    ).length
+    return expected ? Math.min(100, Math.round((taken / expected) * 100)) : 0
   }
 
-  function MedsTab() {
-    const [form, setForm] = useState({ name: '', dose: '', timesPerDay: '1' })
-    const today = todayISO()
-    const since = new Date(Date.now() - 30 * 86400000).toISOString().slice(0, 10)
+  return (
+    <Section title={t('mon.addMed')}>
+      <Card className="mb-4 grid grid-cols-2 gap-3 p-4 sm:grid-cols-4">
+        <Field label={t('mon.medName')}>
+          <input className={inputClass} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+        </Field>
+        <Field label={t('mon.dose')}>
+          <input className={inputClass} value={form.dose} onChange={(e) => setForm({ ...form, dose: e.target.value })} />
+        </Field>
+        <Field label={t('mon.timesPerDay')}>
+          <input type="number" min={1} className={inputClass} value={form.timesPerDay} onChange={(e) => setForm({ ...form, timesPerDay: e.target.value })} />
+        </Field>
+        <div className="flex items-end">
+          <Button variant="primary" onClick={add}>
+            {t('common.add')}
+          </Button>
+        </div>
+      </Card>
 
-    function add() {
-      if (!form.name.trim()) return
-      const med: Medication = {
-        id: uid(),
-        name: form.name.trim(),
-        dose: form.dose.trim() || undefined,
-        timesPerDay: Math.max(1, Number(form.timesPerDay) || 1),
-        startedISO: today,
-        active: true,
-      }
-      update({ meds: [...data.meds, med] })
-      setForm({ name: '', dose: '', timesPerDay: '1' })
-    }
-    function logDose(medId: string, status: 'taken' | 'missed') {
-      update({ doses: [...data.doses, { id: uid(), medId, dateISO: today, status }] })
-    }
-    function adherence(med: Medication): number {
-      const expected = med.timesPerDay * 30
-      const taken = data.doses.filter(
-        (d) => d.medId === med.id && d.status === 'taken' && d.dateISO >= since,
-      ).length
-      return expected ? Math.min(100, Math.round((taken / expected) * 100)) : 0
-    }
-
-    return (
-      <Section title={t('mon.addMed')}>
-        <Card className="mb-4 grid grid-cols-2 gap-3 p-4 sm:grid-cols-4">
-          <Field label={t('mon.medName')}>
-            <input className={inputClass} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
-          </Field>
-          <Field label={t('mon.dose')}>
-            <input className={inputClass} value={form.dose} onChange={(e) => setForm({ ...form, dose: e.target.value })} />
-          </Field>
-          <Field label={t('mon.timesPerDay')}>
-            <input type="number" min={1} className={inputClass} value={form.timesPerDay} onChange={(e) => setForm({ ...form, timesPerDay: e.target.value })} />
-          </Field>
-          <div className="flex items-end">
-            <Button variant="primary" onClick={add}>
-              {t('common.add')}
-            </Button>
-          </div>
-        </Card>
-
-        {data.meds.length === 0 ? (
-          <p className="text-sm text-slate-400">{t('common.none')}</p>
-        ) : (
-          <div className="space-y-2">
-            {data.meds.map((m) => (
+      {data.meds.length === 0 ? (
+        <p className="text-sm text-slate-400">{t('common.none')}</p>
+      ) : (
+        <div className="space-y-2">
+          {data.meds.map((m) => {
+            const a = adherence(m)
+            return (
               <Card key={m.id} className="flex flex-wrap items-center gap-3 p-3 text-sm">
                 <span className="font-medium">{m.name}</span>
                 {m.dose && <span className="text-slate-500">{m.dose}</span>}
                 <span className="text-slate-500">×{m.timesPerDay}/day</span>
-                <Badge tone={adherence(m) >= 90 ? 'good' : adherence(m) >= 70 ? 'warn' : 'bad'}>
-                  {t('mon.adherence')}: {adherence(m)}%
+                <Badge tone={a >= 90 ? 'good' : a >= 70 ? 'warn' : 'bad'}>
+                  {t('mon.adherence')}: {a}%
                 </Badge>
                 <div className="ml-auto flex gap-2">
                   <Button variant="subtle" onClick={() => logDose(m.id, 'taken')}>
@@ -233,68 +240,72 @@ export default function Monitoring() {
                   </button>
                 </div>
               </Card>
-            ))}
-          </div>
-        )}
-      </Section>
-    )
-  }
+            )
+          })}
+        </div>
+      )}
+    </Section>
+  )
+}
 
-  function ApptsTab() {
-    const [form, setForm] = useState({ dateISO: todayISO(), title: '', location: '', note: '' })
-    function add() {
-      if (!form.title.trim()) return
-      const appt: Appointment = {
-        id: uid(),
-        dateISO: form.dateISO,
-        title: form.title.trim(),
-        location: form.location.trim() || undefined,
-        note: form.note.trim() || undefined,
-      }
-      update({ appointments: [...data.appointments, appt] })
-      setForm({ dateISO: todayISO(), title: '', location: '', note: '' })
+function ApptsTab() {
+  const { data, update } = useApp()
+  const { t } = useI18n()
+  const [form, setForm] = useState({ dateISO: todayISO(), title: '', location: '', note: '' })
+
+  function add() {
+    if (!form.title.trim()) return
+    const appt: Appointment = {
+      id: uid(),
+      dateISO: form.dateISO,
+      title: form.title.trim(),
+      location: form.location.trim() || undefined,
+      note: form.note.trim() || undefined,
     }
-    const upcoming = [...data.appointments].sort((a, b) => a.dateISO.localeCompare(b.dateISO))
-    return (
-      <Section title={t('mon.addAppt')}>
-        <Card className="mb-4 grid grid-cols-2 gap-3 p-4 sm:grid-cols-4">
-          <Field label={t('common.date')}>
-            <input type="date" className={inputClass} value={form.dateISO} onChange={(e) => setForm({ ...form, dateISO: e.target.value })} />
-          </Field>
-          <Field label={t('common.name')}>
-            <input className={inputClass} value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
-          </Field>
-          <Field label="Location" hint={t('common.optional')}>
-            <input className={inputClass} value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} />
-          </Field>
-          <div className="flex items-end">
-            <Button variant="primary" onClick={add}>
-              {t('common.add')}
-            </Button>
-          </div>
-        </Card>
-
-        <h3 className="mb-2 text-sm font-medium">{t('mon.upcoming')}</h3>
-        {upcoming.length === 0 ? (
-          <p className="text-sm text-slate-400">{t('common.none')}</p>
-        ) : (
-          <div className="space-y-2">
-            {upcoming.map((a) => (
-              <Card key={a.id} className="flex flex-wrap items-center gap-3 p-3 text-sm">
-                <span className="font-medium tabular-nums">{a.dateISO}</span>
-                <span>{a.title}</span>
-                {a.location && <span className="text-slate-500">{a.location}</span>}
-                <button
-                  className="ml-auto text-xs text-rose-500 hover:underline"
-                  onClick={() => update({ appointments: data.appointments.filter((x) => x.id !== a.id) })}
-                >
-                  {t('common.delete')}
-                </button>
-              </Card>
-            ))}
-          </div>
-        )}
-      </Section>
-    )
+    update({ appointments: [...data.appointments, appt] })
+    setForm({ dateISO: todayISO(), title: '', location: '', note: '' })
   }
+  const upcoming = [...data.appointments].sort((a, b) => a.dateISO.localeCompare(b.dateISO))
+
+  return (
+    <Section title={t('mon.addAppt')}>
+      <Card className="mb-4 grid grid-cols-2 gap-3 p-4 sm:grid-cols-4">
+        <Field label={t('common.date')}>
+          <input type="date" className={inputClass} value={form.dateISO} onChange={(e) => setForm({ ...form, dateISO: e.target.value })} />
+        </Field>
+        <Field label={t('common.name')}>
+          <input className={inputClass} value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
+        </Field>
+        <Field label="Location" hint={t('common.optional')}>
+          <input className={inputClass} value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} />
+        </Field>
+        <div className="flex items-end">
+          <Button variant="primary" onClick={add}>
+            {t('common.add')}
+          </Button>
+        </div>
+      </Card>
+
+      <h3 className="mb-2 text-sm font-medium">{t('mon.upcoming')}</h3>
+      {upcoming.length === 0 ? (
+        <p className="text-sm text-slate-400">{t('common.none')}</p>
+      ) : (
+        <div className="space-y-2">
+          {upcoming.map((a) => (
+            <Card key={a.id} className="flex flex-wrap items-center gap-3 p-3 text-sm">
+              <span className="font-medium tabular-nums">{a.dateISO}</span>
+              <span>{a.title}</span>
+              {a.location && <span className="text-slate-500">{a.location}</span>}
+              <button
+                className="ml-auto text-xs text-rose-500 hover:underline"
+                onClick={() => update({ appointments: data.appointments.filter((x) => x.id !== a.id) })}
+              >
+                {t('common.delete')}
+              </button>
+            </Card>
+          ))}
+        </div>
+      )}
+    </Section>
+  )
 }

@@ -11,7 +11,8 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "prebuild": "npm run setup:webr",
     "build": "npm run typecheck && vite build",
-    "preview": "vite preview --port 4173"
+    "preview": "vite preview --port 4173",
+    "cli": "tsx cli/hivlab.ts"
   },
   "dependencies": {
     "peerjs": "^1.5.5",
@@ -29,6 +30,7 @@
     "autoprefixer": "^10.4.20",
     "postcss": "^8.5.1",
     "tailwindcss": "^3.4.17",
+    "tsx": "^4.22.3",
     "typescript": "^5.7.3",
     "vite": "^5.4.14"
   }

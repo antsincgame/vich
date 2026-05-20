@@ -310,7 +310,7 @@ export default function Lab() {
       )}
 
       {/* candidate library */}
-      <CandidateLibrary />
+      <CandidateLibrary onUse={applyCandidate} />
 
       {/* R console */}
       <Section title="R">
@@ -320,9 +320,12 @@ export default function Lab() {
       </Section>
     </div>
   )
+}
 
-  function CandidateLibrary() {
-    const empty: Omit<Candidate, 'id'> = {
+function CandidateLibrary({ onUse }: { onUse: (id: string) => void }) {
+  const { data, update } = useApp()
+  const { t } = useI18n()
+  const empty: Omit<Candidate, 'id'> = {
       name: '',
       drugClass: 'INSTI',
       target: 'infection',
@@ -363,7 +366,7 @@ export default function Lab() {
                   {t('common.delete')}
                 </button>
               </div>
-              <Button variant="ghost" className="mt-2" onClick={() => applyCandidate(c.id)}>
+              <Button variant="ghost" className="mt-2" onClick={() => onUse(c.id)}>
                 {t('lab.useCandidate')}
               </Button>
             </Card>
@@ -425,4 +428,3 @@ export default function Lab() {
       </Section>
     )
   }
-}
