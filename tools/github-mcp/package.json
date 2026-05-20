@@ -1,0 +1,24 @@
+{
+  "name": "github-release-mcp",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Small MCP server exposing GitHub release/tag tools (fills gaps left by the built-in GitHub MCP).",
+  "bin": {
+    "github-release-mcp": "dist/index.js"
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "smoke": "node smoke.mjs"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.0",
+    "typescript": "^5.7.3"
+  }
+}
