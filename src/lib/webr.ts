@@ -36,7 +36,10 @@ export async function initWebR(): Promise<WebRClass> {
   setStatus('loading')
   initPromise = (async () => {
     const { WebR, ChannelType } = await import('webr')
-    const webR = new WebR({ channelType: ChannelType.PostMessage })
+    // Serve the R runtime from our own origin (public/webr) to avoid fragile
+    // cross-origin CDN loading and to work offline.
+    const baseUrl = new URL('webr/', document.baseURI).toString()
+    const webR = new WebR({ channelType: ChannelType.PostMessage, baseUrl })
     await webR.init()
     instance = webR
     setStatus('ready')

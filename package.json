@@ -5,8 +5,11 @@
   "type": "module",
   "description": "In-silico HIV research lab in the browser: R simulations (WebR), a local LM Studio AI copilot, P2P collaboration, plus health monitoring. Educational tool, not medical advice.",
   "scripts": {
+    "setup:webr": "node scripts/setup-webr.mjs",
+    "predev": "npm run setup:webr",
     "dev": "vite",
     "typecheck": "tsc -p tsconfig.json --noEmit",
+    "prebuild": "npm run setup:webr",
     "build": "npm run typecheck && vite build",
     "preview": "vite preview --port 4173"
   },

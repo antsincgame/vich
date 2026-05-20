@@ -1,6 +1,7 @@
 node_modules
 dist
 dist-ssr
+public/webr
 *.local
 .DS_Store
 *.log
